@@ -100,3 +100,22 @@ pnpm build
 ### Notes
 
 - Dev Server URI is: `http://localhost:5173/sidepanel.html`
+
+### Development Steps
+
+- Initialize project with Vite + React + TypeScript
+- Generate basic structure for Chrome Extension (manifest.json, side panel, service worker)
+- Define shared message types + storage helpers in src/shared/ (types for save/request/response).
+- Implement metadata extraction in index.ts (title, url, favicon, 100‑char description with meta fallback).
+- Implement background handlers in index.ts to:
+  - request metadata from active tab
+  - save/delete bookmarks in chrome.storage.local
+  - return updated list
+- Wire UI in App.tsx:
+  - load bookmarks on mount
+  - handle save/delete/open
+  - implement search + sort in-memory
+  - show loading/error/empty states
+- Update README.md with setup/build/load‑extension steps
+- Ensure code quality, structure, and naming conventions
+- Test all functionality in Chrome
