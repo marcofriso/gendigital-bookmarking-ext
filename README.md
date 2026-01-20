@@ -84,3 +84,19 @@ Provide a GitHub repo or zip with:
 - Complete extension code
 - README with setup and decisions
 - Be ready to potentially discuss your approach
+
+### Development
+
+This project works with `npm` or `pnpm`.
+
+Example with pnpm:
+
+```bash
+pnpm install
+pnpm dev
+pnpm build
+```
+
+### Notes
+
+- Dev Server URI is: `http://localhost:5173/sidepanel.html`
