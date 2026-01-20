@@ -1,0 +1,177 @@
+:root {
+  color-scheme: light;
+  font-family: "Work Sans", "Avenir", sans-serif;
+  background: #f4f1ea;
+  color: #1e1c18;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #fff1d6 0%, #f4f1ea 45%, #e8e2d4 100%);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+}
+
+.app__header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.app__title {
+  font-size: 24px;
+  margin: 0 0 4px;
+}
+
+.app__subtitle {
+  margin: 0;
+  color: #5b5349;
+  font-size: 14px;
+}
+
+.controls {
+  display: grid;
+  gap: 12px;
+}
+
+.control {
+  display: grid;
+  gap: 6px;
+}
+
+.control__label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6e665b;
+}
+
+input,
+select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #cbbfae;
+  background: #fff7e6;
+  font-size: 14px;
+}
+
+.button {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.button--primary {
+  background: #1e1c18;
+  color: #f9f4ea;
+}
+
+.button--ghost {
+  background: transparent;
+  border: 1px solid #cbbfae;
+  color: #1e1c18;
+}
+
+.button--danger {
+  border-color: #c27c6c;
+  color: #a64d3d;
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+}
+
+.empty {
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px dashed #cbbfae;
+  color: #6e665b;
+  background: #fff7e6;
+  text-align: center;
+}
+
+.card {
+  background: #fff7e6;
+  border-radius: 16px;
+  padding: 14px;
+  border: 1px solid #e2d7c7;
+  display: grid;
+  gap: 10px;
+}
+
+.card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card__title-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.card__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #eadcc7;
+}
+
+.card__icon--placeholder {
+  border: 1px dashed #cbbfae;
+}
+
+.card__title {
+  margin: 0;
+  font-size: 16px;
+}
+
+.card__url {
+  margin: 4px 0 0;
+  color: #7b7266;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.card__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.card__description {
+  margin: 0;
+  color: #5b5349;
+  font-size: 14px;
+}
+
+@media (min-width: 520px) {
+  .app__header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .controls {
+    grid-template-columns: 1fr 160px;
+    align-items: end;
+  }
+}
