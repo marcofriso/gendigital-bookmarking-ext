@@ -1,18 +1,37 @@
 import { useState } from "react";
-import type { Bookmark, SortMode } from "@shared/types";
+import type { SortMode } from "@shared/types";
+import { useBookmarks } from "./hooks/useBookmarks";
+import { BookmarkList } from "./components/BookmarkList";
+import { Controls } from "./components/Controls";
 
 const EMPTY_MESSAGE = "No bookmarks yet. Save a page to see it here.";
 
 export default function App() {
-  const [bookmarks] = useState<Bookmark[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortMode, setSortMode] = useState<SortMode>("time");
+  const { bookmarks, isLoading, isUpdating, error, save, remove, open } =
+    useBookmarks();
 
-  const handleSave = () => {
-    // TODO: Trigger active tab metadata capture via background script.
-  };
-
-  const visibleBookmarks = bookmarks;
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  // Filter by title first, then fall back to URL matching,
+  // then sort by title alphabetically or by most recent first.
+  const visibleBookmarks = [...bookmarks]
+    .filter((bookmark) => {
+      if (!normalizedQuery) {
+        return true;
+      }
+      const titleMatch = bookmark.title.toLowerCase().includes(normalizedQuery);
+      if (titleMatch) {
+        return true;
+      }
+      return bookmark.url.toLowerCase().includes(normalizedQuery);
+    })
+    .sort((a, b) => {
+      if (sortMode === "title") {
+        return a.title.localeCompare(b.title);
+      }
+      return b.createdAt - a.createdAt;
+    });
 
   return (
     <div className="app">
@@ -21,62 +40,32 @@ export default function App() {
           <h1 className="app__title">Bookmarks</h1>
           <p className="app__subtitle">Save this page to read later.</p>
         </div>
-        <button type="button" className="button button--primary" onClick={handleSave}>
+        <button
+          type="button"
+          className="button button--primary"
+          onClick={save}
+          disabled={isUpdating}
+        >
           Save for later
         </button>
       </header>
 
-      <section className="controls">
-        <label className="control">
-          <span className="control__label">Search</span>
-          <input
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Search by title or URL"
-            type="search"
-          />
-        </label>
-        <label className="control">
-          <span className="control__label">Sort</span>
-          <select value={sortMode} onChange={(event) => setSortMode(event.target.value as SortMode)}>
-            <option value="time">Time added</option>
-            <option value="title">Title</option>
-          </select>
-        </label>
-      </section>
+      <Controls
+        searchQuery={searchQuery}
+        sortMode={sortMode}
+        onSearchChange={setSearchQuery}
+        onSortChange={setSortMode}
+      />
 
-      <section className="list">
-        {visibleBookmarks.length === 0 ? (
-          <div className="empty">{EMPTY_MESSAGE}</div>
-        ) : (
-          visibleBookmarks.map((bookmark) => (
-            <article key={bookmark.id} className="card">
-              <div className="card__header">
-                <div className="card__title-row">
-                  {bookmark.iconUrl ? (
-                    <img src={bookmark.iconUrl} alt="" className="card__icon" />
-                  ) : (
-                    <div className="card__icon card__icon--placeholder" />
-                  )}
-                  <div>
-                    <h2 className="card__title">{bookmark.title}</h2>
-                    <p className="card__url">{bookmark.url}</p>
-                  </div>
-                </div>
-                <div className="card__actions">
-                  <button type="button" className="button button--ghost">
-                    Open
-                  </button>
-                  <button type="button" className="button button--ghost button--danger">
-                    Delete
-                  </button>
-                </div>
-              </div>
-              <p className="card__description">{bookmark.description}</p>
-            </article>
-          ))
-        )}
-      </section>
+      <BookmarkList
+        bookmarks={visibleBookmarks}
+        isLoading={isLoading}
+        error={error}
+        isUpdating={isUpdating}
+        emptyMessage={EMPTY_MESSAGE}
+        onOpen={open}
+        onDelete={remove}
+      />
     </div>
   );
 }
