@@ -1,8 +1,4 @@
-import type { BackgroundMessage, ContentMessage } from "./types";
-
-export type RuntimeMessage = {
-  type: string;
-};
+import type { BackgroundMessage, ContentMessage, RuntimeMessage } from "./types";
 
 export const isRuntimeMessage = (value: unknown): value is RuntimeMessage =>
   typeof value === "object" && value !== null && "type" in value;

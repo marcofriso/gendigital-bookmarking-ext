@@ -1,5 +1,12 @@
-import type { BookmarkDraft, BookmarkMetadataResponse } from "@shared/types";
-import { isContentMessage } from "@shared/messages";
+import type {
+  BookmarkDraft,
+  BookmarkMetadataResponse,
+  ContentMessage
+} from "@shared/types";
+
+// Keep runtime helpers local: content scripts cannot use ES module imports.
+const isContentMessage = (value: unknown): value is ContentMessage =>
+  typeof value === "object" && value !== null && "type" in value;
 
 // Collapse whitespace so descriptions are readable and compact.
 const normalizeText = (value: string): string =>

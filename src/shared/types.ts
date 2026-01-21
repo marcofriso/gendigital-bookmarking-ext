@@ -26,6 +26,10 @@ export type BookmarkMetadataRequest = {
   type: "BOOKMARK_METADATA_REQUEST";
 };
 
+export type RuntimeMessage = {
+  type: string;
+};
+
 export type BookmarkMetadataResponse = {
   ok: boolean;
   data?: BookmarkDraft;

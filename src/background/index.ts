@@ -119,3 +119,35 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
   return false;
 });
+
+// Toggle the side panel when the extension action is clicked.
+const sidePanelState = new Map<number, boolean>();
+
+chrome.action.onClicked.addListener((tab) => {
+  if (!tab.id) {
+    return;
+  }
+
+  const tabId = tab.id;
+  const isOpen = sidePanelState.get(tabId) ?? false;
+
+  if (isOpen) {
+    chrome.sidePanel.setOptions({ tabId, enabled: false }, () => {
+      if (!chrome.runtime.lastError) {
+        sidePanelState.set(tabId, false);
+      }
+    });
+    return;
+  }
+
+  chrome.sidePanel.setOptions({ tabId, enabled: true, path: "sidepanel.html" }, () => {
+    if (chrome.runtime.lastError) {
+      return;
+    }
+    chrome.sidePanel.open({ tabId }, () => {
+      if (!chrome.runtime.lastError) {
+        sidePanelState.set(tabId, true);
+      }
+    });
+  });
+});
