@@ -8,7 +8,7 @@ import type {
 import {
   getBookmarksFromStorage,
   setBookmarksInStorage,
-} from "@shared/constants";
+} from "@shared/storage";
 import { isBackgroundMessage } from "@shared/messages";
 
 // Ask the active tab for metadata to save.

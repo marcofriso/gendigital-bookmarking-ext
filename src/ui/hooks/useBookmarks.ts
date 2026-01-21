@@ -4,7 +4,7 @@ import type {
   Bookmark,
   BookmarkListResponse,
 } from "@shared/types";
-import { getBookmarksFromStorage } from "@shared/constants";
+import { getBookmarksFromStorage } from "@shared/storage";
 
 type UseBookmarksResult = {
   bookmarks: Bookmark[];
@@ -12,9 +12,9 @@ type UseBookmarksResult = {
   isUpdating: boolean;
   error: string | null;
   reload: () => Promise<void>;
-  save: () => Promise<void>;
-  remove: (id: string) => Promise<void>;
-  open: (url: string) => void;
+  saveBookmark: () => Promise<void>;
+  deleteBookmark: (id: string) => Promise<void>;
+  openBookmark: (url: string) => void;
 };
 
 // Manage bookmark data and background interactions for the side panel.
@@ -62,7 +62,7 @@ export const useBookmarks = (): UseBookmarksResult => {
     });
   };
 
-  const save = async () => {
+  const saveBookmark = async () => {
     setError(null);
     setIsUpdating(true);
     try {
@@ -75,14 +75,16 @@ export const useBookmarks = (): UseBookmarksResult => {
       setBookmarks(response.data);
     } catch (saveError) {
       const message =
-        saveError instanceof Error ? saveError.message : "Failed to save bookmark.";
+        saveError instanceof Error
+          ? saveError.message
+          : "Failed to save bookmark.";
       setError(message);
     } finally {
       setIsUpdating(false);
     }
   };
 
-  const remove = async (id: string) => {
+  const deleteBookmark = async (id: string) => {
     setError(null);
     setIsUpdating(true);
     try {
@@ -105,7 +107,7 @@ export const useBookmarks = (): UseBookmarksResult => {
     }
   };
 
-  const open = (url: string) => {
+  const openBookmark = (url: string) => {
     chrome.tabs.create({ url });
   };
 
@@ -115,8 +117,8 @@ export const useBookmarks = (): UseBookmarksResult => {
     isUpdating,
     error,
     reload: loadBookmarks,
-    save,
-    remove,
-    open,
+    saveBookmark,
+    deleteBookmark,
+    openBookmark,
   };
 };

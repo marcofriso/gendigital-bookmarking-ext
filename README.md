@@ -97,9 +97,15 @@ pnpm dev
 pnpm build
 ```
 
-### Notes
+### Setup and Load Extension
 
-- Dev Server URI is: `http://localhost:5173/sidepanel.html`
+1. Install dependencies: `pnpm install` or `npm install`
+2. Build the extension: `pnpm build` or `npm run build`
+3. Open `chrome://extensions`, enable Developer Mode, click "Load unpacked"
+4. Select the `dist` folder
+5. Open the side panel from the extension icon
+
+For UI-only development, run `pnpm dev` and open `http://localhost:5173/sidepanel.html`.
 
 ### Development Steps
 

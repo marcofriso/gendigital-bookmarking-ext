@@ -9,8 +9,15 @@ const EMPTY_MESSAGE = "No bookmarks yet. Save a page to see it here.";
 export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortMode, setSortMode] = useState<SortMode>("time");
-  const { bookmarks, isLoading, isUpdating, error, save, remove, open } =
-    useBookmarks();
+  const {
+    bookmarks,
+    isLoading,
+    isUpdating,
+    error,
+    saveBookmark,
+    deleteBookmark,
+    openBookmark
+  } = useBookmarks();
 
   const normalizedQuery = searchQuery.trim().toLowerCase();
   // Filter by title first, then fall back to URL matching,
@@ -43,7 +50,7 @@ export default function App() {
         <button
           type="button"
           className="button button--primary"
-          onClick={save}
+          onClick={saveBookmark}
           disabled={isUpdating}
         >
           Save for later
@@ -63,8 +70,8 @@ export default function App() {
         error={error}
         isUpdating={isUpdating}
         emptyMessage={EMPTY_MESSAGE}
-        onOpen={open}
-        onDelete={remove}
+        onOpen={openBookmark}
+        onDelete={deleteBookmark}
       />
     </div>
   );
