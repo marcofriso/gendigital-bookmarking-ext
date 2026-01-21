@@ -3,6 +3,7 @@ import type { SortMode } from "@shared/types";
 import { useBookmarks } from "./hooks/useBookmarks";
 import { BookmarkList } from "./components/BookmarkList";
 import { Controls } from "./components/Controls";
+import { getVisibleBookmarks } from "./utils/bookmarks";
 
 const EMPTY_MESSAGE = "No bookmarks yet. Save a page to see it here.";
 
@@ -19,26 +20,11 @@ export default function App() {
     openBookmark
   } = useBookmarks();
 
-  const normalizedQuery = searchQuery.trim().toLowerCase();
-  // Filter by title first, then fall back to URL matching,
-  // then sort by title alphabetically or by most recent first.
-  const visibleBookmarks = [...bookmarks]
-    .filter((bookmark) => {
-      if (!normalizedQuery) {
-        return true;
-      }
-      const titleMatch = bookmark.title.toLowerCase().includes(normalizedQuery);
-      if (titleMatch) {
-        return true;
-      }
-      return bookmark.url.toLowerCase().includes(normalizedQuery);
-    })
-    .sort((a, b) => {
-      if (sortMode === "title") {
-        return a.title.localeCompare(b.title);
-      }
-      return b.createdAt - a.createdAt;
-    });
+  const visibleBookmarks = getVisibleBookmarks(
+    bookmarks,
+    searchQuery,
+    sortMode,
+  );
 
   return (
     <div className="app">

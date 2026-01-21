@@ -6,8 +6,12 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@shared": resolve(__dirname, "src/shared")
-    }
+      "@shared": resolve(__dirname, "src/shared"),
+    },
+  },
+  test: {
+    // would be "jsdom" for browser-like DOM APIs
+    environment: "node",
   },
   build: {
     outDir: "dist",
@@ -16,14 +20,14 @@ export default defineConfig({
       input: {
         sidepanel: resolve(__dirname, "sidepanel.html"),
         background: resolve(__dirname, "src/background/index.ts"),
-        content: resolve(__dirname, "src/content/index.ts")
+        content: resolve(__dirname, "src/content/index.ts"),
       },
       output: {
         entryFileNames: "[name].js",
         chunkFileNames: "chunks/[name].js",
         assetFileNames: "assets/[name][extname]",
-        format: "es"
-      }
-    }
-  }
+        format: "es",
+      },
+    },
+  },
 });
