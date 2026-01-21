@@ -1,11 +1,5 @@
 import type { BookmarkDraft, BookmarkMetadataResponse } from "@shared/types";
-
-type ContentMessage = {
-  type: string;
-};
-
-const isContentMessage = (value: unknown): value is ContentMessage =>
-  typeof value === "object" && value !== null && "type" in value;
+import { isContentMessage } from "@shared/messages";
 
 // Collapse whitespace so descriptions are readable and compact.
 const normalizeText = (value: string): string =>

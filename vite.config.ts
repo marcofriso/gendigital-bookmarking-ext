@@ -4,6 +4,11 @@ import { resolve } from "path";
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      "@shared": resolve(__dirname, "src/shared")
+    }
+  },
   build: {
     outDir: "dist",
     emptyOutDir: true,
