@@ -16,26 +16,56 @@ const requestMetadataFromActiveTab = async (): Promise<BookmarkDraft> => {
   return new Promise((resolve, reject) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0];
-      if (!activeTab?.id) {
+
+      if (activeTab?.id === undefined) {
         reject(new Error("No active tab found"));
         return;
       }
 
+      const tabId: number = activeTab.id;
+
+      const requestMetadata = () => {
+        chrome.tabs.sendMessage(
+          tabId,
+          { type: "BOOKMARK_METADATA_REQUEST" },
+          (response: BookmarkMetadataResponse) => {
+            if (chrome.runtime.lastError) {
+              reject(new Error(chrome.runtime.lastError.message));
+              return;
+            }
+
+            if (!response?.ok || !response.data) {
+              reject(new Error(response?.error ?? "No metadata returned"));
+              return;
+            }
+
+            resolve(response.data);
+          },
+        );
+      };
+
+      // First try to request metadata directly.
       chrome.tabs.sendMessage(
-        activeTab.id,
+        tabId,
         { type: "BOOKMARK_METADATA_REQUEST" },
-        (response: BookmarkMetadataResponse) => {
-          if (chrome.runtime.lastError) {
-            reject(new Error(chrome.runtime.lastError.message));
+        () => {
+          if (!chrome.runtime.lastError) {
+            requestMetadata();
             return;
           }
 
-          if (!response?.ok || !response.data) {
-            reject(new Error(response?.error ?? "No metadata returned"));
-            return;
-          }
+          // If that fails, inject the content script and try again.
+          chrome.scripting.executeScript(
+            { target: { tabId }, files: ["content.js"] },
+            () => {
+              if (chrome.runtime.lastError) {
+                reject(new Error(chrome.runtime.lastError.message));
+                return;
+              }
 
-          resolve(response.data);
+              requestMetadata();
+            },
+          );
         },
       );
     });
@@ -57,6 +87,7 @@ const buildBookmark = (draft: BookmarkDraft): Bookmark => ({
 });
 
 // Fetch metadata, store it, and return the updated list.
+// Handles both new saves and updates to existing bookmarks.
 const handleSave = async (
   sendResponse: (response: BookmarkListResponse) => void,
 ) => {
@@ -64,7 +95,25 @@ const handleSave = async (
     const metadata = await requestMetadataFromActiveTab();
     const stored = await getBookmarksFromStorage();
     const bookmarks = coerceBookmarks(stored);
-    const updated = [buildBookmark(metadata), ...bookmarks];
+
+    const existingIndex = bookmarks.findIndex(
+      (bookmark) => bookmark.url === metadata.url,
+    );
+    const nextBookmark =
+      existingIndex >= 0
+        ? {
+            ...bookmarks[existingIndex],
+            ...metadata,
+            createdAt: Date.now(),
+          }
+        : buildBookmark(metadata);
+
+    const remaining =
+      existingIndex >= 0
+        ? bookmarks.filter((bookmark) => bookmark.url !== metadata.url)
+        : bookmarks;
+
+    const updated = [nextBookmark, ...remaining];
 
     await setBookmarksInStorage(updated);
 
@@ -140,14 +189,18 @@ chrome.action.onClicked.addListener((tab) => {
     return;
   }
 
-  chrome.sidePanel.setOptions({ tabId, enabled: true, path: "sidepanel.html" }, () => {
-    if (chrome.runtime.lastError) {
-      return;
-    }
-    chrome.sidePanel.open({ tabId }, () => {
-      if (!chrome.runtime.lastError) {
-        sidePanelState.set(tabId, true);
+  // Open the side panel.
+  chrome.sidePanel.setOptions(
+    { tabId, enabled: true, path: "sidepanel.html" },
+    () => {
+      if (chrome.runtime.lastError) {
+        return;
       }
-    });
-  });
+      chrome.sidePanel.open({ tabId }, () => {
+        if (!chrome.runtime.lastError) {
+          sidePanelState.set(tabId, true);
+        }
+      });
+    },
+  );
 });

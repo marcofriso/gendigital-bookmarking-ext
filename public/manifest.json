@@ -21,6 +21,6 @@
       "run_at": "document_idle"
     }
   ],
-  "permissions": ["storage", "sidePanel", "tabs", "activeTab"],
+  "permissions": ["storage", "sidePanel", "tabs", "activeTab", "scripting"],
   "host_permissions": ["<all_urls>"]
 }

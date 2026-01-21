@@ -5,6 +5,7 @@ import type {
   BookmarkListResponse,
 } from "@shared/types";
 import { getBookmarksFromStorage } from "@shared/storage";
+import { BOOKMARKS_STORAGE_KEY } from "@shared/constants";
 
 type UseBookmarksResult = {
   bookmarks: Bookmark[];
@@ -45,6 +46,23 @@ export const useBookmarks = (): UseBookmarksResult => {
   useEffect(() => {
     // Fire-and-forget to keep the effect synchronous.
     void loadBookmarks();
+  }, []);
+
+  // Listen for external storage changes to update the bookmark list.
+  useEffect(() => {
+    const handleStorageChange: Parameters<
+      typeof chrome.storage.onChanged.addListener
+    >[0] = (changes, areaName) => {
+      if (areaName !== "local" || !changes[BOOKMARKS_STORAGE_KEY]) {
+        return;
+      }
+      void loadBookmarks();
+    };
+
+    chrome.storage.onChanged.addListener(handleStorageChange);
+    return () => {
+      chrome.storage.onChanged.removeListener(handleStorageChange);
+    };
   }, []);
 
   const requestBookmarkUpdate = async (
