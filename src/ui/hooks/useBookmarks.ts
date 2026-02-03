@@ -59,9 +59,14 @@ export const useBookmarks = (): UseBookmarksResult => {
       void loadBookmarks();
     };
 
+    if (!chrome.storage?.onChanged?.addListener) {
+      console.warn("Extension storage API not available.");
+      return;
+    }
+
     chrome.storage.onChanged.addListener(handleStorageChange);
     return () => {
-      chrome.storage.onChanged.removeListener(handleStorageChange);
+      chrome.storage?.onChanged?.removeListener(handleStorageChange);
     };
   }, []);
 
@@ -69,6 +74,11 @@ export const useBookmarks = (): UseBookmarksResult => {
     message: BackgroundMessage,
   ): Promise<BookmarkListResponse> => {
     return new Promise((resolve, reject) => {
+      if (!chrome.runtime?.sendMessage) {
+        reject(new Error("Extension runtime API not available."));
+        return;
+      }
+
       chrome.runtime.sendMessage(message, (response: BookmarkListResponse) => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
@@ -126,6 +136,11 @@ export const useBookmarks = (): UseBookmarksResult => {
   };
 
   const openBookmark = (url: string) => {
+    if (!chrome.tabs?.create) {
+      window.open(url, "_blank", "noopener,noreferrer");
+      return;
+    }
+
     chrome.tabs.create({ url });
   };
 
