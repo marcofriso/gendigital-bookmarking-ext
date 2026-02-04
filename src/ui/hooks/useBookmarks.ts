@@ -18,6 +18,24 @@ type UseBookmarksResult = {
   openBookmark: (url: string) => void;
 };
 
+type StorageChangeListener = Parameters<
+  typeof chrome.storage.onChanged.addListener
+>[0];
+
+export const subscribeToStorageChanges = (
+  listener: StorageChangeListener,
+): (() => void) => {
+  if (!chrome.storage?.onChanged?.addListener) {
+    console.warn("Extension storage API not available.");
+    return () => {};
+  }
+
+  chrome.storage.onChanged.addListener(listener);
+  return () => {
+    chrome.storage?.onChanged?.removeListener(listener);
+  };
+};
+
 // Manage bookmark data and background interactions for the side panel.
 export const useBookmarks = (): UseBookmarksResult => {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
@@ -59,15 +77,7 @@ export const useBookmarks = (): UseBookmarksResult => {
       void loadBookmarks();
     };
 
-    if (!chrome.storage?.onChanged?.addListener) {
-      console.warn("Extension storage API not available.");
-      return;
-    }
-
-    chrome.storage.onChanged.addListener(handleStorageChange);
-    return () => {
-      chrome.storage?.onChanged?.removeListener(handleStorageChange);
-    };
+    return subscribeToStorageChanges(handleStorageChange);
   }, []);
 
   const requestBookmarkUpdate = async (
